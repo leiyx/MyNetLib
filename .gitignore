@@ -30,3 +30,12 @@
 *.exe
 *.out
 *.app
+
+bin/
+
+.gitignore
+.clang-format
+README.md
+
+build/
+lib/
