@@ -1,0 +1,7 @@
+add_executable(test_time_stamp test_time_stamp.cc)
+add_executable(test_log_sync test_log_sync.cc)
+add_executable(test_log_async test_log_async.cc)
+
+target_link_libraries(test_log_sync mynetlib pthread)
+target_link_libraries(test_log_async mynetlib pthread)
+target_link_libraries(test_time_stamp mynetlib pthread)
