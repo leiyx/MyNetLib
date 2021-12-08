@@ -3,10 +3,16 @@
  * @Description: 工具类
  * @FilePath: /MyNetLib/include/utils.h
  */
+#ifndef UTILS_H
+#define UTILS_H
+
+#include <sys/eventfd.h>
+
 #include <chrono>
 #include <functional>
-#include <iostream>
 #include <string>
+
+#include "logger.h"
 
 namespace utils {
 
@@ -31,4 +37,14 @@ void TestTime(std::function<void()> f) {
   return;
 }
 
+int CreateEventfd() {
+  int evtfd = ::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
+  if (evtfd < 0) {
+    LOG_FATAL << "eventfd error: " << errno;
+  }
+  return evtfd;
+}
+
 }  // namespace utils
+
+#endif  // UTILS_H
