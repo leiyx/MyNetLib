@@ -36,4 +36,6 @@ using WriteCompleteCallback = std::function<void(const TcpConnectionPtr &)>;
 using MessageCallback =
     std::function<void(const TcpConnectionPtr &, Buffer *, TimeStamp)>;
 
+// tcp_server.h
+using ConnectionMap = std::unordered_map<std::string, TcpConnectionPtr>;
 #endif  // CALLBACKS_H
