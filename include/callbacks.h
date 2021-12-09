@@ -7,9 +7,12 @@
 #define CALLBACKS_H
 
 #include <functional>
+#include <memory>
 
+class TcpConnection;
 class TimeStamp;
 class EventLoop;
+class Buffer;
 
 // 在event_loop.h中使用
 using Functor = std::function<void()>;
@@ -23,5 +26,14 @@ using ThreadInitCallback = std::function<void(EventLoop *)>;
 using OutputFunc = std::function<void(const char *, int)>;
 //将文件内容冲刷到磁盘，内存 -〉 磁盘
 using FlushFunc = std::function<void()>;
+
+// tcp_connection.h
+using TcpConnectionPtr = std::shared_ptr<TcpConnection>;
+
+using ConnectionCallback = std::function<void(const TcpConnectionPtr &)>;
+using CloseCallback = std::function<void(const TcpConnectionPtr &)>;
+using WriteCompleteCallback = std::function<void(const TcpConnectionPtr &)>;
+using MessageCallback =
+    std::function<void(const TcpConnectionPtr &, Buffer *, TimeStamp)>;
 
 #endif  // CALLBACKS_H

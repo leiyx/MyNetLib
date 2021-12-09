@@ -1,5 +1,6 @@
 #include "socket.h"
 
+#include <fcntl.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -20,12 +21,14 @@ void Socket::Listen() {
  * @param {InetAddr*} peeraddr:传出参数，用于保存客户端的socket地址
  * @return {int} 返回新建立的connfd值
  */
-int Socket::Accept(InetAddr* peeraddr)  //输出参数
+int Socket::Accept(InetAddr* peeraddr, bool nonblock)  //输出参数
 {
   sockaddr_in addr;
   socklen_t len = sizeof(sockaddr);
-  int connfd =
-      ::accept4(fd_, (sockaddr*)&addr, &len, SOCK_CLOEXEC | SOCK_NONBLOCK);
+  int connfd = ::accept4(fd_, (sockaddr*)&addr, &len, SOCK_CLOEXEC);
+  if (nonblock) {
+    Socket::SetNonblocking(connfd);
+  }
   if (connfd > 0) {
     peeraddr->SetAddr(addr);
     LOG_INFO << "accept new connection from " << peeraddr->ToIpPort().c_str();
@@ -76,4 +79,13 @@ const sockaddr_in Socket::GetPeerAddr(int sockfd) {
     LOG_ERROR << "sockets::GetPeerAddr";
   }
   return peer_addr;
+}
+
+bool Socket::SetNonblocking(int fd, bool on) {
+  int old = fcntl(fd, F_GETFL);
+  if (-1 == fcntl(fd, F_SETFL, old | O_NONBLOCK)) {
+    LOG_ERROR << fd << "set nonbolock failed";
+    return false;
+  }
+  return true;
 }
