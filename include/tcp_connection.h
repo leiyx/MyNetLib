@@ -57,11 +57,13 @@ class TcpConnection : noncopyable,
 
   void SetContext(std::any a) { context_ = a; }
   std::any GetContext() { return context_; }
-  // TODO: 定时相关接口
+
+  Timer* AddTimerTask(int32_t repeated_times, int64_t interval,
+                      TimeEventCallback callback) {
+    return loop_->RunAfter(repeated_times, interval, callback);
+  }
 
  private:
-  void SetState(State state) { state_ = state; }
-
   void HandleRead(TimeStamp receive_time);
   void HandleWrite();
   void HandleClose();
@@ -77,6 +79,7 @@ class TcpConnection : noncopyable,
     kDisconnecting,
     kDisconnected,
   };
+  void SetState(State state) { state_ = state; }
 
   EventLoop* loop_;
 

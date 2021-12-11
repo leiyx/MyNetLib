@@ -2,7 +2,7 @@
 
 #include <strings.h>
 
-#include "logger.h"
+#include "socket_utils.h"
 
 EventLoop* CheckLoopNotNull(EventLoop* loop) {
   if (loop == nullptr) LOG_FATAL << "mainloop is null!";
@@ -53,7 +53,7 @@ void TcpServer::NewConnection(int sockfd, const InetAddr& peer_addr) {
   LOG_INFO << "TcpServer::newConnection [" << name_.c_str()
            << "] - new connection [" << conn_name.c_str() << "%s] from "
            << peer_addr.ToIpPort().c_str();
-  InetAddr local_addr(Socket::GetLocalAddr());
+  InetAddr local_addr(socket_utils::GetLocalAddr(sockfd));
 
   TcpConnectionPtr conn(
       new TcpConnection(io_loop, local_addr, peer_addr, sockfd, conn_name));

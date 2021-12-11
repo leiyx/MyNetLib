@@ -18,7 +18,7 @@ void Logger::SetOutputFunc(OutputFunc out) { g_output = out; }
 void Logger::SetFlushFunc(FlushFunc flush) { g_flush = flush; }
 
 // 初始化日志级别，可在最外层CMakeLists.txt文件中定义不同的宏来启用不同的日志等级
-Logger::LogLevel initLogLevel() {
+Logger::LogLevel InitLogLevel() {
 #ifdef USE_LOG_TRACE
   return Logger::TRACE;
 #elif defined USE_LOG_DEBUG
@@ -27,7 +27,7 @@ Logger::LogLevel initLogLevel() {
   return Logger::INFO;
 #endif
 }
-Logger::LogLevel g_logLevel = initLogLevel();
+Logger::LogLevel g_logLevel = InitLogLevel();
 
 inline Logger::LogLevel Logger::GetLogLevel() { return g_logLevel; }
 void Logger::SetLogLevel(Logger::LogLevel level) { g_logLevel = level; }
@@ -72,5 +72,5 @@ Logger::Impl::Impl(Logger::LogLevel level, const char* filename, int line)
           << " " << T(LogLevelName[level], 9) << " ";
 }
 void Logger::Impl::Finish() {
-  stream_ << " - " << filename_ << ':' << line_ << "\n";
+  stream_ << " - " << filename_ << ':' << 22 << "\n";
 }

@@ -1,8 +1,6 @@
 #include "acceptor.h"
 
-#include <unistd.h>
-
-#include "logger.h"
+#include "socket_utils.h"
 
 static int CreateNonblocking() {
   int sockfd = ::socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0);
@@ -16,9 +14,10 @@ Acceptor::Acceptor(EventLoop* loop, const InetAddr& ListenAddr, bool reuse_port)
       accept_socket_(CreateNonblocking()),
       accept_channel_(loop, accept_socket_.GetFd()),
       listenning_(false) {
-  accept_socket_.SetReuseAddr(reuse_port);
-  accept_socket_.SetReusePort(reuse_port);
-  accept_socket_.BindAddress(ListenAddr);
+  int fd = accept_socket_.GetFd();
+  socket_utils::SetReuseAddr(fd, reuse_port);
+  socket_utils::SetReusePort(fd, reuse_port);
+  accept_socket_.Bind(ListenAddr);
 
   accept_channel_.SetReadEventCallback(
       std::bind((&Acceptor::HandleRead), this));

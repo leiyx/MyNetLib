@@ -21,7 +21,7 @@
 class Logger {
  public:
   enum LogLevel {
-    TRACE = 1,
+    TRACE = 0,
     DEBUG,
     INFO,
     WARN,

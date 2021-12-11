@@ -47,7 +47,7 @@ class EventLoop {
   void HasChannel(Channel* channel);
 
   // 定时任务相关接口
-  // TODO：是否可以返回id替代返回Timer*
+  // TODO：是否可以返回Timer id替代返回Timer*
   Timer* RunAfter(int32_t repeated_times, int64_t interval,
                   TimeEventCallback callback);
 

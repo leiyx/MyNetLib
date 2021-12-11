@@ -9,7 +9,6 @@
 #include <sys/socket.h>
 
 #include "inet_addr.h"
-#include "logger.h"
 #include "noncopyable.h"
 
 class Socket : noncopyable {
@@ -25,15 +24,6 @@ class Socket : noncopyable {
   int Accept(InetAddr* peeraddr, bool nonblock = true);
   void Connect(int server_listen_fd, InetAddr* local_addr);
   void ShutdownWrite();
-
-  // 一组socket选项设置，包装了setsockopt函数
-  void SetReuseAddr(bool on = true);
-  void SetReusePort(bool on = true);
-  void SetKeepAlive(bool on = true);
-
-  static const sockaddr_in GetLocalAddr(int sockfd);
-  static const sockaddr_in GetPeerAddr(int sockfd);
-  static bool SetNonblocking(int fd, bool on = true);
 
  private:
   const int fd_;

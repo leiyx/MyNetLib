@@ -4,6 +4,7 @@
 void Log1() {
   for (int i = 0; i < 10000; i++) {
     LOG_INFO << "同步日志打印：输出到标准输出（控制台）";
+    LOG_WARN << "同步日志打印：输出到标准输出（控制台）";
   }
 }
 
@@ -18,11 +19,11 @@ void Log2() {
   Logger::SetFlushFunc(MyFlush);
   for (int i = 0; i < 10000; i++) {
     LOG_INFO << "同步日志打印：输出到文件";
+    LOG_WARN << "同步日志打印：输出到文件";
   }
 }
 int main() {
-  // utils::TestTime(Log1);
-  utils::TestTime(Log2);
+  utils::TestTime(Log1);
+  // utils::TestTime(Log2);
   return 0;
 }
-// TODO:日志信息中文和行号乱码问题

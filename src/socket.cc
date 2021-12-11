@@ -1,11 +1,6 @@
 #include "socket.h"
 
-#include <fcntl.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <unistd.h>
-
-#include "logger.h"
+#include "socket_utils.h"
 Socket::~Socket() { ::close(fd_); }
 void Socket::Bind(const InetAddr& localaddr) {
   if (::bind(fd_, localaddr.Get_Const_Sockaddr_ptr(), sizeof(sockaddr_in)) != 0)
@@ -27,7 +22,7 @@ int Socket::Accept(InetAddr* peeraddr, bool nonblock)  //输出参数
   socklen_t len = sizeof(sockaddr);
   int connfd = ::accept4(fd_, (sockaddr*)&addr, &len, SOCK_CLOEXEC);
   if (nonblock) {
-    Socket::SetNonblocking(connfd);
+    socket_utils::SetNonblocking(connfd, true);
   }
   if (connfd > 0) {
     peeraddr->SetAddr(addr);
@@ -39,53 +34,8 @@ int Socket::Accept(InetAddr* peeraddr, bool nonblock)  //输出参数
 void Socket::Connect(int local_fd, InetAddr* ser_addr) {
   int ret =
       ::connect(local_fd, ser_addr->Get_Const_Sockaddr_ptr(), sizeof(sockaddr));
-  // LOG_FATAL << "connect to listenfd: " << local_fd << " failed!";
 }
 void Socket::ShutdownWrite() {
   if (::shutdown(fd_, SHUT_WR) < 0)
     LOG_ERROR << "shutdownWrite sockfd: " << fd_ << " error!";
-}
-
-void Socket::SetReuseAddr(bool on) {
-  int optval = on ? 1 : 0;
-  ::setsockopt(fd_, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof optval);
-}
-
-void Socket::SetReusePort(bool on) {
-  int optval = on ? 1 : 0;
-  ::setsockopt(fd_, SOL_SOCKET, SO_REUSEPORT, &optval, sizeof optval);
-}
-
-void Socket::SetKeepAlive(bool on) {
-  int optval = on ? 1 : 0;
-  ::setsockopt(fd_, SOL_SOCKET, SO_KEEPALIVE, &optval, sizeof optval);
-}
-
-const sockaddr_in Socket::GetLocalAddr(int sockfd) {
-  struct sockaddr_in local_addr;
-  bzero(&local_addr, sizeof local_addr);
-  socklen_t addrlen = static_cast<socklen_t>(sizeof local_addr);
-  if (::getsockname(sockfd, (struct sockaddr*)&local_addr, &addrlen) < 0) {
-    LOG_ERROR << "sockets::GetLocalAddr";
-  }
-  return local_addr;
-}
-
-const sockaddr_in Socket::GetPeerAddr(int sockfd) {
-  struct sockaddr_in peer_addr;
-  bzero(&peer_addr, sizeof peer_addr);
-  socklen_t addrlen = static_cast<socklen_t>(sizeof peer_addr);
-  if (::getpeername(sockfd, (struct sockaddr*)&peer_addr, &addrlen) < 0) {
-    LOG_ERROR << "sockets::GetPeerAddr";
-  }
-  return peer_addr;
-}
-
-bool Socket::SetNonblocking(int fd, bool on) {
-  int old = fcntl(fd, F_GETFL);
-  if (-1 == fcntl(fd, F_SETFL, old | O_NONBLOCK)) {
-    LOG_ERROR << fd << "set nonbolock failed";
-    return false;
-  }
-  return true;
 }

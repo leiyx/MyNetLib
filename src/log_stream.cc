@@ -48,4 +48,4 @@ LogStream& LogStream::operator<<(const std::string& str) {
   return *this;
 }
 
-// Todo: 重载更多类型
+// TODO: 重载更多类型

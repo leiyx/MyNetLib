@@ -2,17 +2,17 @@
 #include <string>
 
 #include "buffer.h"
-#include "logger.h"
 #include "socket.h"
+#include "socket_utils.h"
 
 // 实现简单的回射
 void Test1() {
   int fd = socket(AF_INET, SOCK_STREAM, 0);
   if (fd == -1) LOG_FATAL << "socket() error";
   Socket s(fd);
-  s.SetKeepAlive(true);
-  s.SetReuseAddr(true);
-  s.SetReusePort(true);
+  socket_utils::SetKeepAlive(fd, true);
+  socket_utils::SetReuseAddr(fd, true);
+  socket_utils::SetReusePort(fd, true);
   InetAddr addr(10001);
   LOG_INFO << "服务端socket地址：" << addr.ToIpPort();
   s.Bind(addr);
