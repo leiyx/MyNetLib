@@ -27,9 +27,9 @@ Channel::Channel(EventLoop* loop, int fd)
 
 void Channel::HandleEvent(TimeStamp received_time) {
   if (tied_) {
-    auto temp = tie_.lock();
-    // 如果TcpConnection被手动Remove时,即temp为空，就不再处理fd的事件
-    if (temp) HandleEventWithGuard(received_time);
+    auto guard = tie_.lock();
+    // 如果TcpConnection被手动Remove时,即guard为空，就不再处理fd的事件
+    if (guard) HandleEventWithGuard(received_time);
   } else
     HandleEventWithGuard(received_time);
 }

@@ -27,7 +27,7 @@ ssize_t Buffer::ReadFd(int fd, int* saveErrno) {
   if (n < 0) {
     *saveErrno = errno;
     LOG_ERROR << "read " << fd << " error!";
-  } else if (n < writeable)  // 只写入了buffer_
+  } else if (n <= writeable)  // 只写入了buffer_
   {
     write_index_ += n;
   } else  // buffer_和栈都写入了

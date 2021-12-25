@@ -11,7 +11,9 @@ Thread::Thread(ThreadFunc func, const std::string& name)
       name_(name),
       tid_(0),
       started_(false),
-      joined_(false) {}
+      joined_(false) {
+  SetDefaultName();
+}
 Thread::~Thread() {
   if (started_ && !joined_)
     thread_->detach();  // 这种情况，线程的资源只能留给系统去回收
@@ -23,7 +25,7 @@ void Thread::Start() {
   sem_init(&sem, false, 0);
 
   // 开启线程
-  thread_ = std::unique_ptr<std::thread>(new std::thread([&]() {
+  thread_ = std::shared_ptr<std::thread>(new std::thread([&]() {
     // 获取线程的tid值
     tid_ = CurrentThread::Tid();
     sem_post(&sem);

@@ -49,6 +49,20 @@
 		"fstream": "cpp",
 		"mutex": "cpp",
 		"sstream": "cpp",
-		"thread": "cpp"
+		"thread": "cpp",
+		"any": "cpp",
+		"bit": "cpp",
+		"bitset": "cpp",
+		"complex": "cpp",
+		"cstring": "cpp",
+		"list": "cpp",
+		"map": "cpp",
+		"set": "cpp",
+		"unordered_set": "cpp",
+		"regex": "cpp",
+		"shared_mutex": "cpp",
+		"cinttypes": "cpp",
+		"typeindex": "cpp",
+		"variant": "cpp"
 	}
 }

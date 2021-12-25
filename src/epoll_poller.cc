@@ -19,21 +19,22 @@ EpollPoller::EpollPoller(EventLoop *loop)
     : Poller(loop),
       epoll_fd_(::epoll_create1(EPOLL_CLOEXEC)),
       events_(kInitEventSize) {
-  if (epoll_fd_ < 0) LOG_ERROR << "EPOLL_CREATE error: " << errno;
+  if (epoll_fd_ < 0) LOG_FATAL << "EPOLL_CREATE error: " << errno;
 }
 
 EpollPoller::~EpollPoller() { ::close(epoll_fd_); }
+
 TimeStamp EpollPoller::Polling(int timeout_ms, ChannelList *active_channels) {
   LOG_DEBUG << "fd total count " << (int)channel_maps_.size();
-  int readyNum = ::epoll_wait(epoll_fd_, &*events_.begin(),
-                              static_cast<int>(events_.size()), timeout_ms);
+  int ready_num = ::epoll_wait(epoll_fd_, &*events_.begin(),
+                               static_cast<int>(events_.size()), timeout_ms);
   int saveErrno = errno;
   TimeStamp now(TimeStamp::Now());
-  if (readyNum > 0) {
-    LOG_DEBUG << readyNum << "events happened";
-    FillActiveChannels(readyNum, active_channels);
-    if (readyNum == events_.size()) events_.resize(events_.size() * 2);
-  } else if (readyNum == 0) {
+  if (ready_num > 0) {
+    LOG_DEBUG << ready_num << "events happened";
+    FillActiveChannels(ready_num, active_channels);
+    if (ready_num == events_.size()) events_.resize(events_.size() * 2);
+  } else if (ready_num == 0) {
     LOG_DEBUG << "no events occured! in " << timeout_ms << "ms";
   } else {
     if (errno != EINTR) {
@@ -103,11 +104,12 @@ void EpollPoller::FillActiveChannels(int num_events,
 void EpollPoller::Update(int operation, Channel *channel) {
   epoll_event event;
   bzero(&event, sizeof event);
+  int fd = channel->Fd();
   event.events = channel->Events();
-  event.data.fd = channel->Fd();
+  event.data.fd = fd;
   event.data.ptr = channel;
 
-  if (::epoll_ctl(epoll_fd_, operation, channel->Fd(), &event) < 0) {
+  if (::epoll_ctl(epoll_fd_, operation, fd, &event) < 0) {
     if (operation == EPOLL_CTL_DEL) {
       LOG_ERROR << "epoll_ctl del error: " << errno;
     } else {

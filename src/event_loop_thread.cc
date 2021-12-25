@@ -1,6 +1,6 @@
 /*
  * @Author: lei
- * @Description: 基于EventLoopThread 实现 线程池
+ * @Description: 基于Thread 实现one loop per thread
  * @FilePath: /MyNetLib/src/event_loop_thread.cc
  */
 #include "event_loop_thread.h"
@@ -44,7 +44,7 @@ void EventLoopThread::ThreadFunc() {
     loop_ = &loop;
     cond_.notify_one();
   }
-  loop_->Loop();
+  loop.Loop();
   std::unique_lock<std::mutex> lock(mutex_);
   loop_ = nullptr;
 }

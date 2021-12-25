@@ -39,7 +39,7 @@ class Thread : noncopyable {
 
   ThreadFunc func_;
 
-  std::unique_ptr<std::thread> thread_;
+  std::shared_ptr<std::thread> thread_;
   // C++11中std::thread一被构造，线程就开始运行，控制不了它的启动时机,因此这里使用智能指针
   static std::atomic_int num_created_;
   // 作为类的一个静态数据成员，记录产生的线程数,属于多个线程的共享资源，使用atomic_int保证线程安全

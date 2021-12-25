@@ -22,7 +22,7 @@ class Buffer {
   static const size_t kInitialSize = 1024;
 
   explicit Buffer(size_t initialSize = kInitialSize)
-      : buffer_(kInitialSize),
+      : buffer_(kCheapPrepend + initialSize),
         read_index_(kCheapPrepend),
         write_index_(kCheapPrepend) {}
 
@@ -58,17 +58,15 @@ class Buffer {
   void Append(const char* data, size_t len) {
     EnsureWriteableBytes(len);
     std::copy(data, data + len, BeginWrite());
+    write_index_ += len;
   }
+  void Append(const std::string s) { Append(s.c_str(), s.size()); }
 
   //分散读、分散写
   ssize_t ReadFd(int fd, int* saveErrno);
   ssize_t WriteFd(int fd, int* saveErrno);
 
  private:
-  std::vector<char> buffer_;
-  size_t read_index_;
-  size_t write_index_;
-
   char* Begin() { return &*buffer_.begin(); }
   const char* Begin() const { return &*buffer_.begin(); }
 
@@ -86,6 +84,11 @@ class Buffer {
       write_index_ = read_index_ + readable;
     }
   }
+
+ private:
+  std::vector<char> buffer_;
+  size_t read_index_;
+  size_t write_index_;
 };
 
 #endif  // BUFFER_H

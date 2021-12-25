@@ -5,7 +5,7 @@
 static int CreateNonblocking() {
   int sockfd = ::socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0);
   if (sockfd < 0) LOG_FATAL << "listen socket: " << sockfd << "create error ";
-  LOG_INFO << "fds" << sockfd;
+  LOG_INFO << "server listen_fd=" << sockfd;
   return sockfd;
 }
 
@@ -14,9 +14,8 @@ Acceptor::Acceptor(EventLoop* loop, const InetAddr& ListenAddr, bool reuse_port)
       accept_socket_(CreateNonblocking()),
       accept_channel_(loop, accept_socket_.GetFd()),
       listenning_(false) {
-  int fd = accept_socket_.GetFd();
-  socket_utils::SetReuseAddr(fd, reuse_port);
-  socket_utils::SetReusePort(fd, reuse_port);
+  accept_socket_.SetReuseAddr(reuse_port);
+  accept_socket_.SetReuseAddr(reuse_port);
   accept_socket_.Bind(ListenAddr);
 
   accept_channel_.SetReadEventCallback(
@@ -40,9 +39,11 @@ void Acceptor::HandleRead() {
   InetAddr peeraddr;
   int connfd = accept_socket_.Accept(&peeraddr);
   if (connfd >= 0) {
-    if (new_connection_callback_) {
+    socket_utils::SetReuseAddr(connfd, true);
+    socket_utils::SetReusePort(connfd, true);
+    if (new_connection_callback_)
       new_connection_callback_(connfd, peeraddr);
-    } else
+    else
       ::close(connfd);
   } else {
     LOG_ERROR << "listen socket: " << accept_socket_.GetFd() << "create error ";

@@ -14,7 +14,7 @@
 __thread EventLoop* t_loopInThisThread = nullptr;
 
 // 定义默认的Poller的IO复用接口的超时时间
-const int kPollTimeMs = 5000;
+const int kPollTimeMs = 10000;
 
 EventLoop::EventLoop()
     : looping_(false),
@@ -46,12 +46,14 @@ EventLoop::~EventLoop() {
 void EventLoop::Loop() {
   looping_ = true;
   quit_ = false;
+  LOG_DEBUG << "EventLoop " << this << " start looping";
   while (!quit_) {
     CheckAndHandleTimerEvent();  // 处理定时事件
     PollAndHandleIoEvent();      // 处理IO事件
     DoPendingFunctors();         // 处理其他事件
   }
   looping_ = false;
+  LOG_INFO << "EventLoop " << this << " stop looping";
 }
 
 void EventLoop::Quit() {
@@ -71,7 +73,7 @@ void EventLoop::PollAndHandleIoEvent() {
                        ? kPollTimeMs
                        : timer_manager_.GetRecentTimeout();
   poll_return_time_ = poller_->Polling(timeout_ms, &active_channels_);
-  for (Channel* channel : active_channels_)
+  for (auto& channel : active_channels_)
     channel->HandleEvent(poll_return_time_);
 }
 
@@ -135,4 +137,3 @@ Timer* EventLoop::RunAfter(int32_t repeated_times, int64_t interval,
                            TimeEventCallback callback) {
   return timer_manager_.AddTimer(repeated_times, interval, callback);
 }
-// TODO: 线程安全问题

@@ -1,4 +1,9 @@
 #include "socket_utils.h"
+
+void socket_utils::SetTcpNoDelay(int fd, bool on) {
+  int optval = on ? 1 : 0;
+  ::setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &optval, sizeof optval);
+}
 void socket_utils::SetReuseAddr(int fd, bool on) {
   int optval = on ? 1 : 0;
   ::setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof optval);

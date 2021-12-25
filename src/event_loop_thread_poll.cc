@@ -32,7 +32,7 @@ void EventLoopThreadPool::Start(const ThreadInitCallback &cb) {
   }
   LOG_INFO << "ThreadPool started!";
   // 整个服务端只有一个线程，运行着baseloop
-  if (num_threads_ == 0 && cb) {
+  if (num_threads_ == 1 && cb) {
     cb(base_loop_);
   }
 }

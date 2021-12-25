@@ -54,6 +54,14 @@ class TcpServer {
   const std::string IpPort() const { return ip_port_; }
 
  private:
+  // 该函数传给Acceptor中的new_connection_callback_
+  void NewConnection(int sockfd, const InetAddr& peer_addr);
+
+  // 该函数传给TcpConnection::HandleClose中的close_callback_
+  void RemoveConnection(const TcpConnectionPtr& conn);
+  void RemoveconnectionInLoop(const TcpConnectionPtr& conn);
+
+ private:
   EventLoop* loop_;  // baseloop,即mainloop,由用户传入
   const std::string ip_port_;
   const std::string name_;
@@ -69,13 +77,6 @@ class TcpServer {
   ThreadInitCallback thread_init_callback_;
 
   ConnectionMap connection_maps;
-
-  // 该函数传给Acceptor中的new_connection_callback_
-  void NewConnection(int sockfd, const InetAddr& peer_addr);
-
-  // 该函数传给TcpConnection::HandleClose中的close_callback_
-  void RemoveConnection(const TcpConnectionPtr& conn);
-  void RemoveconnectionInLoop(const TcpConnectionPtr& conn);
 };
 
 #endif  // TCP_SERVER_H

@@ -24,10 +24,11 @@ class EpollPoller : public Poller {
   void RemoveChannel(Channel *channels) override;
 
  private:
-  static const int kInitEventSize = 16;
-
   void FillActiveChannels(int num_events, ChannelList *active_channels) const;
   void Update(int operation, Channel *channel);
+
+ private:
+  static const int kInitEventSize = 16;
 
   int epoll_fd_;
   EventList events_;  // 用于存放epoll_wait返回的struct epooll_events数组

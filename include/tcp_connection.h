@@ -17,10 +17,10 @@
 #include "event_loop.h"
 #include "inet_addr.h"
 #include "logger.h"
+#include "socket.h"
 #include "time_stamp.h"
 
 class Channel;
-class Socket;
 
 class TcpConnection : noncopyable,
                       public std::enable_shared_from_this<TcpConnection> {
@@ -49,8 +49,15 @@ class TcpConnection : noncopyable,
     close_callback_ = std::move(cb);
   }
 
+  void SetTcpNoDelay(bool on) { socket_->SetTcpNoDelay(on); }
+  void SetReuseAddr(bool on) { socket_->SetReuseAddr(on); }
+  void SetReusePort(bool on) { socket_->SetReusePort(on); }
+  void SetKeepAlive(bool on) { socket_->SetKeepAlive(on); }
+  bool SetNonblocking(bool on) { return socket_->SetNonblocking(on); }
+
   void Send(const std::string& buf);
   void Send(const char* buf, int len);
+  void Send(Buffer* buffer);
   void ShutDown();
   void ConnectionEstablished();
   void ConnectionDestroyed();
@@ -104,8 +111,6 @@ class TcpConnection : noncopyable,
   CloseCallback close_callback_;
   std::any context_;  // C++17
 };
-// TODO: 为什么mainloop没有TcpConnection？
-// TODO: 高水位？？？
-// TODO: enable_share_from_this
+// TODO: 高水位回调
 
 #endif  // TCP_CONNECTION_H

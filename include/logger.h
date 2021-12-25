@@ -6,15 +6,15 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 
-#include <assert.h>
-#include <callbacks.h>
 #include <string.h>
 #include <sys/time.h>
 
+#include <cassert>
 #include <functional>
 #include <string>
 
 #include "async_logging.h"
+#include "callbacks.h"
 #include "log_file.h"
 #include "log_stream.h"
 #include "time_stamp.h"
@@ -43,8 +43,8 @@ class Logger {
 
   ~Logger();
 
-  LogLevel GetLogLevel();
-  void SetLogLevel(Logger::LogLevel);
+  static LogLevel GetLogLevel();
+  static void SetLogLevel(Logger::LogLevel);
 
   static void SetOutputFunc(
       OutputFunc);  //将日志信息从 应用程序buffer 写到 文件对应的缓冲区;
@@ -74,15 +74,17 @@ class Logger {
  private:
   Impl impl_;
 };
+extern Logger::LogLevel g_logLevel;
+inline Logger::LogLevel Logger::GetLogLevel() { return g_logLevel; }
 
-#define LOG_TRACE                          \
-  if (Logger::LogLevel() <= Logger::TRACE) \
+#define LOG_TRACE                             \
+  if (Logger::GetLogLevel() <= Logger::TRACE) \
   Logger(__FILE__, __LINE__, Logger::TRACE, __FUNCTION__).Stream()
-#define LOG_DEBUG                          \
-  if (Logger::LogLevel() <= Logger::DEBUG) \
+#define LOG_DEBUG                             \
+  if (Logger::GetLogLevel() <= Logger::DEBUG) \
   Logger(__FILE__, __LINE__, Logger::DEBUG, __FUNCTION__).Stream()
 #define LOG_INFO \
-  if (Logger::LogLevel() <= Logger::INFO) Logger(__FILE__, __LINE__).Stream()
+  if (Logger::GetLogLevel() <= Logger::INFO) Logger(__FILE__, __LINE__).Stream()
 #define LOG_WARN Logger(__FILE__, __LINE__, Logger::WARN).Stream()
 #define LOG_ERROR Logger(__FILE__, __LINE__, Logger::ERROR).Stream()
 #define LOG_FATAL Logger(__FILE__, __LINE__, Logger::FATAL).Stream()

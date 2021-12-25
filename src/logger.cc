@@ -23,14 +23,19 @@ Logger::LogLevel InitLogLevel() {
   return Logger::TRACE;
 #elif defined USE_LOG_DEBUG
   return Logger::DEBUG;
-#else
+#elif defined USE_LOG_INFO
   return Logger::INFO;
+#elif defined USE_LOG_WARN
+  return Logger::WARN;
+#elif defined USE_LOG_ERROR
+  return Logger::ERROR;
+#elif defined USE_LOG_FATAL
+  return Logger::FATAL;
 #endif
 }
 Logger::LogLevel g_logLevel = InitLogLevel();
-
-inline Logger::LogLevel Logger::GetLogLevel() { return g_logLevel; }
 void Logger::SetLogLevel(Logger::LogLevel level) { g_logLevel = level; }
+
 const char* LogLevelName[Logger::FATAL + 1] = {
     "[TRACE]: ", "[DEBUG]: ", "[INFO]:  ",
     "[WARN]:  ", "[ERROR]: ", "[FATAL]: ",

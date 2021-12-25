@@ -8,8 +8,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -fPIC")
 
 # 添加宏的定义
-add_definitions(-D USE_LOG_DEBUG)
-add_definitions(-D USE_POLL)
+add_definitions(-D USE_LOG_WARN)
+add_definitions(-D USE_EPOLL)
 
 # 设置可执行文件和库文件的输出目录
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)

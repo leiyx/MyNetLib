@@ -9,13 +9,15 @@
 #include <arpa/inet.h>
 #include <fcntl.h>
 #include <netinet/in.h>
+#include <netinet/tcp.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
 
 #include "logger.h"
-namespace socket_utils {
 
+namespace socket_utils {
+void SetTcpNoDelay(int fd, bool on);
 void SetReuseAddr(int fd, bool on);
 void SetReusePort(int fd, bool on);
 void SetKeepAlive(int fd, bool on);

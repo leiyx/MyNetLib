@@ -6,8 +6,7 @@
 #ifndef ASYNC_LOGGING_H
 #define ASYNC_LOGGING_H
 
-#include <assert.h>
-
+#include <cassert>
 #include <condition_variable>
 #include <functional>
 #include <memory>

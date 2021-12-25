@@ -47,7 +47,7 @@ void AsyncLogging::Append(const char* msg, int len) {
 }
 
 void AsyncLogging::ThreadFunc() {
-  assert(running_ == true);
+  // assert(running_ == true);
   // 异步写文件的目的地
   LogFile log_file_(filename_, roll_size_, false);
   // 两个后端buffer即 cur_buffer_ 和 next_buffer_

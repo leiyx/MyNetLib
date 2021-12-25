@@ -17,7 +17,7 @@ TcpServer::TcpServer(EventLoop* loop, const InetAddr& listen_addr,
       acceptor_(new Acceptor(loop, listen_addr, option == kReusePort)),
       next_conn_id_(1),
       connection_maps(),
-      thread_pool_(new EventLoopThreadPool(loop_, name_)),
+      thread_pool_(new EventLoopThreadPool(loop, name_)),
       started_(0)  // 没有初始化，线程池启动不了
 {
   acceptor_->SetNewConnectionCallback(std::bind(&TcpServer::NewConnection, this,
@@ -42,7 +42,7 @@ void TcpServer::Start() {
     thread_pool_->Start(thread_init_callback_);
     loop_->RunInLoop(std::bind(&Acceptor::Listen, acceptor_.get()));
   }
-  LOG_INFO << "Server started!";
+  LOG_DEBUG << "Server started!";
 }
 
 void TcpServer::NewConnection(int sockfd, const InetAddr& peer_addr) {
@@ -77,5 +77,5 @@ void TcpServer::RemoveconnectionInLoop(const TcpConnectionPtr& conn) {
 
   connection_maps.erase(conn->Name());
   EventLoop* io_loop = conn->GetLoop();
-  io_loop->RunInLoop(std::bind(&TcpConnection::ConnectionDestroyed, conn));
+  io_loop->QueueInLoop(std::bind(&TcpConnection::ConnectionDestroyed, conn));
 }

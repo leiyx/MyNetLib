@@ -8,6 +8,7 @@ add_executable(test_socket1 test_socket1.cc)
 add_executable(test_socket2 test_socket2.cc)
 add_executable(test_buffer test_buffer.cc)
 
+# link_libraries(mynetlib pthread)
 target_link_libraries(test_log_sync mynetlib pthread)
 target_link_libraries(test_log_async mynetlib pthread)
 target_link_libraries(test_time_stamp mynetlib pthread)

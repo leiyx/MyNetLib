@@ -25,6 +25,12 @@ class Socket : noncopyable {
   void Connect(int server_listen_fd, InetAddr* local_addr);
   void ShutdownWrite();
 
+  void SetTcpNoDelay(bool on);
+  void SetReuseAddr(bool on);
+  void SetReusePort(bool on);
+  void SetKeepAlive(bool on);
+  bool SetNonblocking(bool on);
+
  private:
   const int fd_;
 };

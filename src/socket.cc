@@ -22,7 +22,7 @@ int Socket::Accept(InetAddr* peeraddr, bool nonblock)  //输出参数
   socklen_t len = sizeof(sockaddr);
   int connfd = ::accept4(fd_, (sockaddr*)&addr, &len, SOCK_CLOEXEC);
   if (nonblock) {
-    socket_utils::SetNonblocking(connfd, true);
+    SetNonblocking(true);
   }
   if (connfd > 0) {
     peeraddr->SetAddr(addr);
@@ -38,4 +38,29 @@ void Socket::Connect(int local_fd, InetAddr* ser_addr) {
 void Socket::ShutdownWrite() {
   if (::shutdown(fd_, SHUT_WR) < 0)
     LOG_ERROR << "shutdownWrite sockfd: " << fd_ << " error!";
+}
+
+void Socket::SetTcpNoDelay(bool on) {
+  int optval = on ? 1 : 0;
+  ::setsockopt(fd_, IPPROTO_TCP, TCP_NODELAY, &optval, sizeof optval);
+}
+void Socket::SetReuseAddr(bool on) {
+  int optval = on ? 1 : 0;
+  ::setsockopt(fd_, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof optval);
+}
+void Socket::SetReusePort(bool on) {
+  int optval = on ? 1 : 0;
+  ::setsockopt(fd_, SOL_SOCKET, SO_REUSEPORT, &optval, sizeof optval);
+}
+void Socket::SetKeepAlive(bool on) {
+  int optval = on ? 1 : 0;
+  ::setsockopt(fd_, SOL_SOCKET, SO_KEEPALIVE, &optval, sizeof optval);
+}
+bool Socket::SetNonblocking(bool on) {
+  int old = fcntl(fd_, F_GETFL);
+  if (-1 == fcntl(fd_, F_SETFL, old | O_NONBLOCK)) {
+    LOG_ERROR << fd_ << "set nonbolock failed";
+    return false;
+  }
+  return true;
 }

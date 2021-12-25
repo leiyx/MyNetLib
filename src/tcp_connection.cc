@@ -54,23 +54,36 @@ void TcpConnection::Send(const char* buf, int len) {
     }
   }
 }
+
+void TcpConnection::Send(Buffer* buffer) {
+  if (state_ == kConnected) {
+    if (loop_->IsInLoopThread()) {
+      SendInLoop(buffer->BeginRead(), buffer->ReadableBytes());
+      buffer->RetriveAll();
+    } else {
+      size_t len = buffer->ReadableBytes();
+      loop_->RunInLoop(std::bind(&TcpConnection::SendInLoop, this,
+                                 buffer->RetriveAllAsString().c_str(), len));
+    }
+  }
+}
 void TcpConnection::SendInLoop(const void* data, size_t len) {
   ssize_t nwrote = 0;
   ssize_t remaining = len;
   bool faultError = false;
 
+  // 之前调用过该Connection的Shutdown，则不能再进行发送了
   if (state_ == kDisconnected) {
     LOG_ERROR << "disconnected,give up writing!";
     return;
   }
-  // 如果channel是第一次发数据
+  // 表示channel_第一次开始写数据，而且缓冲区没有待发送数据
   if (!channel_->IsWriting() && output_buffer_.ReadableBytes() == 0) {
     nwrote = ::write(channel_->Fd(), data, len);
-    if (nwrote > 0) {
+    if (nwrote >= 0) {
       remaining = len - nwrote;
       if (remaining == 0 && write_complete_callback_) {
         loop_->RunInLoop(
-            // 为什么shared_from_this?
             std::bind(write_complete_callback_, shared_from_this()));
       }
     } else {
@@ -85,7 +98,7 @@ void TcpConnection::SendInLoop(const void* data, size_t len) {
   }
 
   if (!faultError && remaining > 0) {
-    // 高水位做的事情
+    // TODO:高水位做的事情
     output_buffer_.Append((char*)data + nwrote, remaining);
     if (!channel_->IsWriting()) channel_->EnableWrite();
   }
@@ -98,9 +111,11 @@ void TcpConnection::ShutDown() {
   }
 }
 void TcpConnection::ShutdownInLoop() {
-  while (channel_->IsWriting())  // 等待该channel要发的数据发完，再关闭
-    ;
-  socket_->ShutdownWrite();
+  // while (channel_->IsWriting())  // 等待该channel要发的数据发完，再关闭
+  //   ;
+  if (!channel_->IsWriting()) {
+    socket_->ShutdownWrite();
+  }
 }
 
 void TcpConnection::ConnectionEstablished() {
@@ -145,7 +160,7 @@ void TcpConnection::HandleWrite() {
       if (output_buffer_.ReadableBytes() == 0) {
         channel_->DisableWrite();
         if (write_complete_callback_)
-          loop_->RunInLoop(
+          loop_->QueueInLoop(
               std::bind(write_complete_callback_, shared_from_this()));
         if (state_ == kDisconnecting) ShutdownInLoop();
       }
